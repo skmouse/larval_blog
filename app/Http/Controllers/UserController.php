@@ -9,68 +9,87 @@ use App\Http\Repository\UserRepository;
 
 class UserController extends Controller
 {
-    /**
-     * 用户数据操作
-     */
-    public $UserRepository;
+	/**
+	 * 用户数据操作
+	 */
+	public $UserRepository;
 
-    public function __construct(UserRepository $UserRepository)
-    {
-        $this->UserRepository = $UserRepository;
-    }
+	public function __construct(UserRepository $UserRepository)
+	{
+		$this->UserRepository = $UserRepository;
+	}
 
-    /**
-     * 用户注册
-     */
-    public function register(Create $request)
-    {
-        $email = $request->input('email');
+	/**
+	 * 用户注册
+	 */
+	public function register(Create $request)
+	{
+		$email = $request->input('email');
 
-        $password = md5($request->input('password'));
+		$password = md5($request->input('password'));
 
-        $data = ['email'=>$email, 'password'=> $password];
+		$data = ['email' => $email, 'password' => $password];
 
-        $this->UserRepository->create($data);
+		$this->UserRepository->create($data);
 
-        return $this->api();
-    }
+		return $this->api();
+	}
 
-    /**
-     * 用户数据更新
-     */
-    public function update($id, Request $request)
-    {
-       if ($this->UserRepository->getDataById($id)) {
+	/**
+	 * 用户数据更新
+	 */
+	public function update($id, Request $request)
+	{
+		if ($this->UserRepository->getDataById($id)) {
 
-           $data = $request->only('username', 'age');
+			$data = $request->only('username', 'age');
 
-           $this->UserRepository->updateById($id, $data);
+			$this->UserRepository->updateById($id, $data);
 
-           return $this->api();
-       }
-    }
+			return $this->api();
+		}
+	}
 
-    /**
-     * 用户登陆
-     */
-    public function login(LoginCreate $request)
-    {
-        $email = $request->input(['email']);
+	/**
+	 * 用户登陆
+	 */
+	public function login(LoginCreate $request)
+	{
+		$email = $request->input(['email']);
 
-        $password = $request->input(['password']);
+		$password = $request->input(['password']);
 
-        $userEmail = $this->UserRepository->getUserInfoByEmail($email);
-        if (!$userEmail) {
-            return $this->api(false, '账号不存在');
-        }
+		$userEmail = $this->UserRepository->getUserInfoByEmail($email);
+		if (!$userEmail) {
+			return $this->api('账号不存在');
+		}
 
-        $userPassword = $this->UserRepository->checkPassword($email, $password);
-        if (!$userPassword) {
-            return $this->api(false, '密码错误');
-        }
+		$userPassword = $this->UserRepository->checkPassword($email, $password);
+		if (!$userPassword) {
+			return $this->api('密码错误');
+		}
 
-        $token = $this->UserRepository->createToken($email, $password);
+		$token = $this->UserRepository->createToken($email, $password);
 
-        return $this->api(true, [], $token);
-    }
+		return $this->api('登陆成功', 20000, [], $token);
+	}
+
+	/**
+	 * 删除用户
+	 */
+	public function delete($id)
+	{
+		$this->UserRepository->delete($id);
+
+		return $this->api('删除成功');
+	}
+
+	public function getInfo(Request $request)
+	{
+		$token = $request->headers->get('token');
+
+		$userInfo = $this->UserRepository->getUserInfo($token);
+
+		return $this->api('登陆成功', 20000, $userInfo, $token);
+	}
 }

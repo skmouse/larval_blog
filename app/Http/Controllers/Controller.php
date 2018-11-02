@@ -11,12 +11,12 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function api($status=true, $message = '', $data = [], $token ='')
+    public function api($message = '', $code='', $data = [], $token ='')
     {
         if ($token) {
-            $data = ['status'=> $status, 'message'=>$message, 'data'=>$data, 'token'=>$token];
+            $data = ['msg'=>$message, 'code'=>$code, 'data'=>$data, 'token'=>$token];
         } else {
-            $data = ['status'=> $status, 'message'=>$message, 'data'=>$data];
+            $data = ['msg'=>$message, 'code'=>$code, 'data'=>$data];
         }
 
         return response()->json($data);

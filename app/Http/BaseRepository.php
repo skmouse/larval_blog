@@ -6,23 +6,41 @@ use Illuminate\Database\Eloquent\Model;
 class BaseRepository
 {
     public function create($data)
-    {
-       $this->user->fill($data);
+	{
+		$this->model->fill($data);
 
-       $this->user->save();
-    }
+		$this->model->save();
+	}
 
     public function updateById($id, $data)
     {
-        $this->user = $this->getDataById($id);
+    	$model = $this->getDataById($id);
 
-        $this->user->fill($data);
+		$model->fill($data);
 
-        return $this->user->save();
+        return $model->save();
     }
 
     public function getDataById($id)
     {
-        return $this->user->find($id);
+        return $this->model->find($id);
     }
+
+    public function delete($id)
+	{
+		return $this->model->destroy($id);
+	}
+
+	public function paginate($pagesize=15)
+	{
+
+	}
+
+	public function all()
+	{
+		return $this->model->all();
+	}
+
+
+
 }

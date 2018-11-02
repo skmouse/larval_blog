@@ -6,11 +6,12 @@ use App\User;
 
 class UserRepository extends BaseRepository
 {
-    public $user;
+
+    public $model;
 
     public function __construct(User $user)
     {
-        $this->user = $user;
+        $this->model = $user;
     }
 
     /**
@@ -26,7 +27,7 @@ class UserRepository extends BaseRepository
 
     public function getUserInfoByEmail($email)
     {
-        $data =  $this->user->where('email',$email)->first();
+        $data =  $this->model->where('email',$email)->first();
         if (!empty($data)) {
             return $data;
         }
@@ -36,11 +37,21 @@ class UserRepository extends BaseRepository
 
     public function checkPassword($email, $password)
     {
-        $data =$this->user->where(['email'=>$email, 'password'=>$password])->first();
+        $data =$this->model->where(['email'=>$email, 'password'=>md5($password)])->first();
         if (!empty($data)) {
             return $data;
         }
 
         return false;
     }
+
+    public function getUserInfo($token)
+	{
+		$token = base64_decode($token);
+
+		$email = explode(':', $token)[0];
+
+		return $this->getUserInfoByEmail($email);
+
+	}
 }
