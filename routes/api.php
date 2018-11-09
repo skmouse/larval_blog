@@ -25,4 +25,13 @@ Route::post('/user/update/{id}', 'UserController@update');
 Route::delete('/user/{id}', 'UserController@delete');
 Route::get('/user/getInfo', 'UserController@getInfo');
 
+/**
+ * 内容
+ */
+Route::post('/content', 'ContentController@create');
+Route::post('/content/{id}', 'ContentController@delete');
+Route::put('/content/{id}', 'ContentController@update');
+
+
+
 
