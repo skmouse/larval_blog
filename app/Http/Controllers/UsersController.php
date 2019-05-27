@@ -7,7 +7,7 @@ use App\Http\Requests\User\Create;
 use App\Http\Requests\Login\Create as LoginCreate;
 use App\Http\Repository\UserRepository;
 
-class UserController extends Controller
+class UsersController extends Controller
 {
 	/**
 	 * 用户数据操作
@@ -24,15 +24,19 @@ class UserController extends Controller
 	 */
 	public function register(Create $request)
 	{
-		$email = $request->input('email');
+        $email = $request->input('email');
 
 		$password = md5($request->input('password'));
 
 		$data = ['email' => $email, 'password' => $password];
 
-		$this->UserRepository->create($data);
+		$id = $this->UserRepository->create($data);
 
-		return $this->api();
+		if ($id) {
+            return $this->api('注册成功',200);
+        }
+
+		return $this->api('注册失败',400);
 	}
 
 	/**

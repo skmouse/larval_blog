@@ -19,11 +19,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 
-Route::post('/register', 'UserController@register');
-Route::post('/login', 'UserController@login');
-Route::post('/user/update/{id}', 'UserController@update');
-Route::delete('/user/{id}', 'UserController@delete');
-Route::get('/user/getInfo', 'UserController@getInfo');
+Route::post('/register', 'UsersController@register');
+Route::post('/login', 'UsersController@login');
+Route::post('/users/update/{id}', 'UserController@update');
+Route::delete('/users/{id}', 'UserController@delete');
+Route::get('/users/getInfo', 'UserController@getInfo');
+
 
 /**
  * 内容
@@ -31,6 +32,11 @@ Route::get('/user/getInfo', 'UserController@getInfo');
 Route::post('/content', 'ContentController@create');
 Route::post('/content/{id}', 'ContentController@delete');
 Route::put('/content/{id}', 'ContentController@update');
+
+
+Route::get('test', function () {
+    return 'Hello World';
+});
 
 
 
