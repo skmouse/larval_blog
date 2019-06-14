@@ -21,9 +21,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/register', 'UsersController@register');
 Route::post('/login', 'UsersController@login');
-Route::post('/users/update/{id}', 'UserController@update');
-Route::delete('/users/{id}', 'UserController@delete');
-Route::get('/users/getInfo', 'UserController@getInfo');
+Route::post('/user/{id}', 'UsersController@update');
+Route::delete('/users/{id}', 'UsersController@delete');
+Route::get('/users/getInfo', 'UsersController@getInfo');
 
 
 /**
@@ -32,6 +32,13 @@ Route::get('/users/getInfo', 'UserController@getInfo');
 Route::post('/content', 'ContentController@create');
 Route::post('/content/{id}', 'ContentController@delete');
 Route::put('/content/{id}', 'ContentController@update');
+
+
+Route::get('/getAllContent', 'UsersController@getAllContent');
+
+
+
+
 
 
 Route::get('test', function () {

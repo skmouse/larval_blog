@@ -18,7 +18,7 @@ class UserRepository extends BaseRepository
     public function createToken($email, $password)
     {
         //token生成方式随便写的
-        $code = $email . ':' . $password . 'linux';
+        $code = $email . ':' . $password;
 
         return $token = base64_encode($code);
     }
@@ -26,30 +26,29 @@ class UserRepository extends BaseRepository
     public function getUserInfoByEmail($email)
     {
         $data = $this->model->where('email', $email)->first();
-        if (!empty($data)) {
-            return $data;
+        if (!$data) {
+            return false;
         }
 
-        return false;
+        return $data;
     }
 
     public function checkPassword($email, $password)
     {
         $data = $this->model->where(['email' => $email, 'password' => md5($password)])->first();
-        if (!empty($data)) {
-            return $data;
+        if (!$data) {
+            return false;
         }
 
-        return false;
+        return $data;
     }
 
-    public function getUserInfo($token)
+    public function getUserInfoByToken($token)
     {
         $token = base64_decode($token);
 
         $email = explode(':', $token)[0];
 
         return $this->getUserInfoByEmail($email);
-
     }
 }

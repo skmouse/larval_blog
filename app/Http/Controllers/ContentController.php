@@ -18,17 +18,19 @@ class ContentController extends Controller
 	{
 		$title = $request->input('title');
 		$content = $request->input('content');
-		$author = $request->input('author');
-		$data = [
-			'title' => $title,
-			'content' => $content,
-			'author' => $author,
-		];
+        $userid = 20;
+        $data = [
+			'title'=> $title,
+            'user_id'=> $userid,
+            'content'=> $content,
+        ];
 
-		$this->ContentRepository->create($data);
+		if (!$this->ContentRepository->create($data)) {
+            return $this->api('创建失败', 200);
+        };
 
-		return $this->api('创建成功', 200);
-	}
+        return $this->api('创建成功', 200);
+    }
 
 	/**
 	 * @param $id

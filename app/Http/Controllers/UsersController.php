@@ -2,98 +2,132 @@
 
 namespace App\Http\Controllers;
 
+use App\Content;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\Create;
 use App\Http\Requests\Login\Create as LoginCreate;
 use App\Http\Repository\UserRepository;
+use App\User;
+
 
 class UsersController extends Controller
 {
-	/**
-	 * 用户数据操作
-	 */
-	public $UserRepository;
+    /**
+     * 用户数据操作
+     */
+    public $UserRepository;
 
-	public function __construct(UserRepository $UserRepository)
-	{
-		$this->UserRepository = $UserRepository;
-	}
+    public function __construct(UserRepository $UserRepository)
+    {
+        $this->UserRepository = $UserRepository;
+    }
 
-	/**
-	 * 用户注册
-	 */
-	public function register(Create $request)
-	{
+    /**
+     * 用户注册
+     */
+    public function register(Create $request)
+    {
         $email = $request->input('email');
 
-		$password = md5($request->input('password'));
+        $password = md5($request->input('password'));
 
-		$data = ['email' => $email, 'password' => $password];
+        $data = ['email' => $email, 'password' => $password];
 
-		$id = $this->UserRepository->create($data);
+        if ($this->UserRepository->getUserInfoByEmail($email)) {
 
-		if ($id) {
-            return $this->api('注册成功',200);
+            return $this->api('用户名已经存在', 400);
         }
 
-		return $this->api('注册失败',400);
-	}
+        $id = $this->UserRepository->create($data);
 
-	/**
-	 * 用户数据更新
-	 */
-	public function update($id, Request $request)
-	{
-		if ($this->UserRepository->getDataById($id)) {
+        if (!$id) {
+            return $this->api('注册失败', 200);
+        }
 
-			$data = $request->only('username', 'age');
+        return $this->api('注册成功', 400);
+    }
 
-			$this->UserRepository->updateById($id, $data);
+    /**
+     * 用户数据更新
+     */
+    public function update($id, Request $request)
+    {
+        if ($this->UserRepository->getDataById($id)) {
 
-			return $this->api();
-		}
-	}
+            $data = $request->only('username', 'age');
 
-	/**
-	 * 用户登陆
-	 */
-	public function login(LoginCreate $request)
-	{
-		$email = $request->input(['email']);
+            $this->UserRepository->updateById($id, $data);
 
-		$password = $request->input(['password']);
+            return $this->api();
+        }
+    }
 
-		$userEmail = $this->UserRepository->getUserInfoByEmail($email);
-		if (!$userEmail) {
-			return $this->api('账号不存在');
-		}
+    /**
+     * 用户登陆
+     */
+    public function login(LoginCreate $request)
+    {
+        $email = $request->input(['email']);
 
-		$userPassword = $this->UserRepository->checkPassword($email, $password);
-		if (!$userPassword) {
-			return $this->api('密码错误');
-		}
+        $password = $request->input(['password']);
 
-		$token = $this->UserRepository->createToken($email, $password);
+        $userEmail = $this->UserRepository->getUserInfoByEmail($email);
+        if (!$userEmail) {
+            return $this->api('账号不存在');
+        }
 
-		return $this->api('登陆成功', 20000, [], $token);
-	}
+        $userPassword = $this->UserRepository->checkPassword($email, $password);
+        if (!$userPassword) {
+            return $this->api('密码错误');
+        }
 
-	/**
-	 * 删除用户
-	 */
-	public function delete($id)
-	{
-		$this->UserRepository->delete($id);
+        $token = $this->UserRepository->createToken($email, $password);
 
-		return $this->api('删除成功');
-	}
+        return $this->api('登陆成功', 20000, [$userEmail], $token);
+    }
 
-	public function getInfo(Request $request)
-	{
-		$token = $request->headers->get('token');
+    /**
+     * 删除用户
+     */
+    public function delete($id)
+    {
+        $this->UserRepository->delete($id);
 
-		$userInfo = $this->UserRepository->getUserInfo($token);
+        return $this->api('删除成功');
+    }
 
-		return $this->api('登陆成功', 20000, $userInfo, $token);
-	}
+    public function getInfo(Request $request)
+    {
+        $token = $request->headers->get('token');
+
+        if (!$token) {
+            return $this->api('token不存在或者过期',400);
+        }
+
+        $userInfo = $this->UserRepository->getUserInfoByToken($token);
+
+
+        return $this->api('登陆成功', 20000, $userInfo, $token);
+    }
+
+
+    /**
+     * test
+     */
+    public function getAllContent()
+    {
+        // 获取用户关联的文章
+        //$user_contents = User::find(20)->contents()->where('title', 'test title')->get();
+        // 获取文章关联的用户
+        //$data = Content::find(1)->users->toArray();
+//        $user_contents = User::find(20)->contents();
+//        $user_contents = User::has('contents')->get()->toArray();
+//        $user_contents = User::whereHas('contents', function ($query) {
+//            $query->where('title', '=', 'test title');
+//        })->get()->toArray();
+
+        $user_contents = Content::with('users')->get()->toArray();
+        print_r($user_contents);
+        exit;
+    }
 }
